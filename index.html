@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Music Quiz</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{--bg:#f6f3ee;--fg:#222;--card:#fff;--ac:#c2410c;--ok:#15803d;--bad:#b91c1c;--bd:#ddd;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1816;--fg:#f1ece4;--card:#2a2623;--ac:#fb923c;--ok:#4ade80;--bad:#f87171;--bd:#444}}
+:root[data-theme="dark"]{--bg:#1a1816;--fg:#f1ece4;--card:#2a2623;--ac:#fb923c;--ok:#4ade80;--bad:#f87171;--bd:#444}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,sans-serif;min-height:100vh;display:flex;justify-content:center}
+#app{width:100%;max-width:520px;padding:20px;text-align:center;display:flex;flex-direction:column;gap:16px;justify-content:center}
+h1{font-size:30px;margin:0}h2{font-size:22px;margin:0}
+button{font:inherit;cursor:pointer;border-radius:12px;border:2px solid var(--bd);background:var(--card);color:var(--fg);padding:14px}
+.big{background:var(--ac);color:#fff;border:0;font-size:22px;padding:16px 40px;align-self:center}
+.opt{text-align:left;font-size:18px}.opt.ok{border-color:var(--ok);background:var(--ok);color:#fff}.opt.bad{border-color:var(--bad);background:var(--bad);color:#fff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pic{padding:10px;color:var(--fg)}.pic svg{width:100%;height:110px}.pic.sel{border-color:var(--ac)}.pic.ok{border-color:var(--ok)}.pic.bad{border-color:var(--bad)}
+.row{display:flex;gap:10px;justify-content:center}.msg{font-size:22px;font-weight:700;min-height:30px}
+.arrow{background:var(--ac);color:#fff;border:0;font-size:26px;padding:10px 30px;align-self:center}.arrow:disabled{opacity:.3}
+.cnt{font-size:120px;font-weight:800;color:var(--ac)}.flash svg{width:220px;height:220px;color:var(--fg)}
+</style></head><body><div id="app"></div>
+<script>
+const S='fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"';
+const svg=b=>`<svg viewBox="0 0 100 100" ${S}>${b}</svg>`;
+const I={
+dhol:svg('<ellipse cx="50" cy="30" rx="34" ry="10"/><path d="M16 30v40c0 6 15 10 34 10s34-4 34-10V30"/><path d="M24 38l12 38M42 40l8 40M58 40l-8 40M76 38L64 76" stroke-width="2.5"/>'),
+cello:svg('<ellipse cx="50" cy="70" rx="26" ry="22"/><ellipse cx="50" cy="44" rx="18" ry="14"/><rect x="46" y="4" width="8" height="40"/><path d="M50 92v7M42 60h16"/>'),
+violin:svg('<g transform="translate(12 14) scale(.76)"><ellipse cx="50" cy="70" rx="24" ry="20"/><ellipse cx="50" cy="45" rx="15" ry="13"/><rect x="46" y="4" width="8" height="42"/></g><path d="M88 20L40 92" stroke-width="2.5"/>'),
+piano:svg('<rect x="8" y="32" width="84" height="44"/><path d="M22 52v24M36 52v24M50 52v24M64 52v24M78 52v24" stroke-width="2.5"/><rect x="18" y="52" width="8" height="14" fill="currentColor"/><rect x="46" y="52" width="8" height="14" fill="currentColor"/><rect x="74" y="52" width="8" height="14" fill="currentColor"/><path d="M14 76v14M86 76v14"/>'),
+fortepiano:svg('<path d="M10 40c20-14 50-10 80 4v14H10z"/><path d="M10 54h80v12H10z"/><path d="M26 54v12M42 54v12M58 54v12M74 54v12" stroke-width="2.5"/><path d="M16 66v24M84 66v24M50 66v24"/>'),
+kanun:svg('<path d="M8 78h86L72 28H8z"/><path d="M14 36l60 0M14 46h66M14 56h72M14 66h78" stroke-width="1.8"/><circle cx="30" cy="78" r="0"/>'),
+kamancha:svg('<circle cx="50" cy="68" r="20"/><rect x="46" y="10" width="8" height="40"/><path d="M50 88v10M42 14h-8M66 20h-12" /><circle cx="50" cy="68" r="6" stroke-width="2"/>'),
+zurna:svg('<path d="M44 6h12l3 54 22 32H19l22-32z"/><circle cx="50" cy="26" r="2.5" fill="currentColor"/><circle cx="51" cy="38" r="2.5" fill="currentColor"/><circle cx="52" cy="50" r="2.5" fill="currentColor"/>')
+};
+const app=document.getElementById('app');let score=0,step=0;
+const set=h=>app.innerHTML=h;
+function start(){score=0;set('<h1>🎵 Music Quiz</h1><button class="big" id="go">Start</button>');go.onclick=()=>q1()}
+function mc(title,opts,correct,next){
+ set(`<h2>${title}</h2>${opts.map((o,i)=>`<button class="opt" data-i="${i}">${'ABCD'[i]}) ${o}</button>`).join('')}<button class="arrow" id="nx" disabled>➜</button>`);
+ let done=false;
+ document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(done)return;done=true;
+  const ok=+b.dataset.i===correct;if(ok)score++;b.classList.add(ok?'ok':'bad');
+  if(!ok)document.querySelector(`[data-i="${correct}"]`).classList.add('ok');nx.disabled=false});
+ nx.onclick=next}
+const q1=()=>mc('Who is Michael Jackson?',['Singer','Dancer','Painter','Composer'],0,q2);
+const q2=()=>mc('Which instrument is Armenian?',['Piano','Duduk','Violin','Cello'],1,q3);
+function pics(question,keys,correct,next){
+ set(`<h2>${question}</h2><div class="grid">${keys.map(k=>`<button class="pic" data-k="${k}">${I[k]}</button>`).join('')}</div><div class="msg" id="m"></div><div class="row"><button id="chk">Check</button><button id="rst">Reset</button></div><button class="arrow" id="nx" disabled>➜</button>`);
+ let sel=null,locked=false;
+ const P=[...document.querySelectorAll('.pic')];
+ P.forEach(p=>p.onclick=()=>{if(locked)return;P.forEach(x=>x.classList.remove('sel'));p.classList.add('sel');sel=p.dataset.k});
+ chk.onclick=()=>{if(!sel||locked)return;const ok=sel===correct;locked=true;if(ok)score++;
+  m.textContent=ok?'✅ Correct!':'❌ Wrong!';m.style.color=ok?'var(--ok)':'var(--bad)';
+  P.forEach(p=>{p.classList.remove('sel');if(p.dataset.k===correct)p.classList.add('ok');else if(p.dataset.k===sel)p.classList.add('bad')});nx.disabled=false};
+ rst.onclick=()=>{if(locked)return;sel=null;m.textContent='';P.forEach(p=>p.classList.remove('sel'))};
+ nx.onclick=next}
+const q3=()=>pics('Which one is the cello?',['dhol','cello','violin','piano'],'cello',q4);
+const q4=()=>pics('Which one is the zurna?',['fortepiano','kanun','kamancha','zurna'],'zurna',()=>countdown());
+function countdown(){
+ let n=1;set('<h2>Get ready!</h2><div class="cnt" id="c">1</div>');
+ const t=setInterval(()=>{n++;if(n<=3)c.textContent=n;else{clearInterval(t);flash()}},1000)}
+function flash(){
+ const ks=['dhol','cello','kanun','zurna'];let i=0;
+ const show=()=>{set(`<h2>Quick! Remember them!</h2><div class="flash">${I[ks[i]]}</div>`)};show();
+ const t=setInterval(()=>{i++;if(i<ks.length)show();else{clearInterval(t);end()}},900)}
+function end(){set(`<h1>🎉 Finished!</h1><h2>Score: ${score} / 4</h2><button class="big" id="again">Play again</button>`);again.onclick=start}
+start();
+</script></body></html>
